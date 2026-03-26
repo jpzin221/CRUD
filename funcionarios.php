@@ -1,6 +1,6 @@
 <?php
 /**
- * Gestão de Funcionários
+ * Gestão de Funcionários - Versão SaaS Card List
  * Criado por: João Pedro Alves Rocha
  */
 session_start();
@@ -14,7 +14,7 @@ try {
     $func        = new Funcionario();
     $funcionarios = $func->all();
 } catch (PDOException $e) {
-    $error       = "Não foi possível conectar ao banco. Verifique connect.php.";
+    $error       = "Erro interno: " . $e->getMessage();
     $funcionarios = [];
 }
 ?><!DOCTYPE html>
@@ -22,7 +22,7 @@ try {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Funcionários · PontoApp</title>
+  <title>Equipe · PontoApp</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -39,34 +39,37 @@ try {
   <?php endif; ?>
   <?php if ($error): ?>
   <div class="flash flash-error">
-    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 15h2v2h-2zm0-8h2v6h-2zm1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
     <span><?= htmlspecialchars($error) ?></span>
   </div>
   <?php endif; ?>
 
-  <!-- Formulário de Cadastro -->
+  <p class="page-title">Funcionários</p>
+  <p class="page-subtitle">Gerencie o elenco e remuneração da equipe.</p>
+
+  <!-- Cadastro novo funcionário (SaaS Card Form) -->
   <div class="card">
-    <p class="card-title">
+    <h2 class="card-title">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      Cadastrar funcionário
-    </p>
+      Novo Funcionário
+    </h2>
     <form action="funcionario_store.php" method="POST" novalidate>
       <div class="form-grid">
         <div class="form-group">
           <label for="nome">Nome completo *</label>
-          <input type="text" id="nome" name="nome" placeholder="Ex.: Ana Lima" required>
+          <input type="text" id="nome" name="nome" class="input" placeholder="Ex.: Ana Lima" required>
         </div>
         <div class="form-group">
           <label for="email">E-mail</label>
-          <input type="email" id="email" name="email" placeholder="Ex.: ana@empresa.com">
+          <input type="email" id="email" name="email" class="input" placeholder="ana@empresa.com">
         </div>
         <div class="form-group">
           <label for="cargo">Cargo</label>
-          <input type="text" id="cargo" name="cargo" placeholder="Ex.: Vendedor">
+          <input type="text" id="cargo" name="cargo" class="input" placeholder="Ex.: Analista">
         </div>
         <div class="form-group">
-          <label for="salario">Salário mensal (R$)</label>
-          <input type="number" id="salario" name="salario" step="0.01" min="0" placeholder="Ex.: 2200.00">
+          <label for="salario">Salário Base (Mensal)</label>
+          <input type="number" id="salario" name="salario" class="input" step="0.01" min="0" placeholder="R$ 3.500,00">
         </div>
       </div>
       <button type="submit" class="btn btn-primary">
@@ -76,73 +79,47 @@ try {
     </form>
   </div>
 
-  <!-- Lista -->
-  <div class="section-heading">
-    <h2>
-      <svg viewBox="0 0 24 24" fill="currentColor">
-        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-      </svg>
-      Equipe
-    </h2>
-    <span class="badge-count"><?= count($funcionarios) ?></span>
-  </div>
-
+  <!-- Lista de Funcionários convertida pra Employee Cards -->
+  <br>
+  
   <?php if (empty($funcionarios)): ?>
   <div class="empty-state">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-    <p>Nenhum funcionário cadastrado ainda.</p>
+    <p>A equipe ainda está vazia.</p>
   </div>
   <?php else: ?>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Nome</th>
-          <th>Cargo</th>
-          <th>Salário</th>
-          <th style="text-align:right">Ações</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($funcionarios as $f): ?>
-        <tr>
-          <td class="td-id"><?= $f["id"] ?></td>
-          <td class="td-name">
-            <div style="display:flex;align-items:center;gap:.625rem">
-              <div class="avatar-sm"><?= mb_strtoupper(mb_substr($f["nome"],0,1)) ?></div>
-              <?= htmlspecialchars($f["nome"]) ?>
-            </div>
-          </td>
-          <td class="td-email"><?= htmlspecialchars($f["cargo"] ?: "—") ?></td>
-          <td class="td-doc">
-            <?= $f["salario_mensal"] > 0
-                ? "R$ " . number_format($f["salario_mensal"], 2, ",", ".")
-                : "—" ?>
-          </td>
-          <td>
-            <div class="td-actions">
-              <a href="funcionario_edit.php?id=<?= $f["id"] ?>" class="btn btn-sm btn-edit">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                Editar
-              </a>
-              <a href="funcionario_delete.php?id=<?= $f["id"] ?>"
-                 class="btn btn-sm btn-delete"
-                 onclick="return confirm('Remover <?= htmlspecialchars(addslashes($f["nome"])) ?>? Os registros de ponto serão excluídos junto.')">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
-                Remover
-              </a>
-            </div>
-          </td>
-        </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
+  <div class="employee-list">
+    <?php foreach ($funcionarios as $f): ?>
+    <div class="employee-card">
+      <div class="emp-info">
+        <div class="avatar"><?= mb_strtoupper(mb_substr($f["nome"],0,1)) ?></div>
+        <div>
+          <div class="emp-name"><?= htmlspecialchars($f["nome"]) ?></div>
+          <div class="emp-role"><?= htmlspecialchars($f["cargo"] ?: "Sem cargo") ?></div>
+        </div>
+      </div>
+      
+      <div class="emp-meta">
+        <?= $f["salario_mensal"] > 0
+            ? "R$ " . number_format((float)$f["salario_mensal"], 2, ",", ".")
+            : '<span style="color:var(--text-muted);font-weight:400;font-family:sans-serif;font-size:0.85rem">Sem salário base</span>' ?>
+      </div>
+      
+      <div class="emp-actions">
+        <a href="funcionario_edit.php?id=<?= $f["id"] ?>" class="btn btn-sm btn-edit">Editar</a>
+        <a href="funcionario_delete.php?id=<?= $f["id"] ?>"
+           class="btn btn-sm btn-delete"
+           onclick="return confirm('Remover <?= htmlspecialchars(addslashes($f["nome"])) ?>? O histórico de ponto será perdido.')">
+          Remover
+        </a>
+      </div>
+    </div>
+    <?php endforeach; ?>
   </div>
   <?php endif; ?>
 
   <footer class="site-footer">
-    &copy; <?= date('Y') ?> · Sistema de Controle de Ponto · Criado por <strong>João Pedro Alves Rocha</strong>
+    &copy; <?= date('Y') ?> · PontoApp · UX Modernizer · Criado por <strong>João Pedro Alves Rocha</strong>
   </footer>
 </div>
 </body>
